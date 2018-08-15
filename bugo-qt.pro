@@ -29,40 +29,38 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 # workaround for boost 1.58
 DEFINES += BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
 
-win32:BOOST_LIB_SUFFIX=-mgw48-mt-s-1_57
-win32:BOOST_INCLUDE_PATH=D:/CoinDev/deps/boost_1_57_0
-win32:BOOST_LIB_PATH=D:/CoinDev/deps/boost_1_57_0/stage/lib
-win32:BDB_INCLUDE_PATH=D:/CoinDev/deps/db-5.0.32.NC/build_unix
-win32:BDB_LIB_PATH=D:/CoinDev/deps/db-5.0.32.NC/build_unix
-win32:OPENSSL_INCLUDE_PATH=D:/CoinDev/deps/openssl-1.0.1l/include
-win32:OPENSSL_LIB_PATH=D:/CoinDev/deps/openssl-1.0.1l
-win32:MINIUPNPC_INCLUDE_PATH=D:/CoinDev/deps/
-win32:MINIUPNPC_LIB_PATH=D:/CoinDev/deps/miniupnpc
-win32:LIBPNG_INCLUDE_PATH=D:/CoinDev/deps/include/
-win32:LIBPNG_LIB_PATH=D:/CoinDev/deps/lib
-win32:QRENCODE_INCLUDE_PATH=D:/CoinDev/deps/qrencode-3.4.3
-win32:QRENCODE_LIB_PATH=D:/CoinDev/deps/qrencode-3.4.3/.libs
-win32:SECP256K1_INCLUDE_PATH = D:/CoinDev/deps/Secp256k1/include/
-win32:SECP256K1_LIB_PATH = D:/CoinDev/deps/Secp256k1/lib/
-
 OBJECTS_DIR = build
 MOC_DIR = build
 UI_DIR = build
 
+win32 {
+  BOOST_THREAD_LIB_SUFFIX=
+  BOOST_INCLUDE_PATH=C:/devel/boost_1_55_0
+  BOOST_LIB_PATH=C:/devel/boost_1_55_0/stage/lib
+  BDB_INCLUDE_PATH=C:/devel/db-4.8.30
+  BDB_LIB_PATH=C:/devel/db-4.8.30
+  OPENSSL_INCLUDE_PATH=C:/devel/openssl-1.0.2o/include
+  OPENSSL_LIB_PATH=C:/devel/openssl-1.0.2o
+  MINIUPNPC_INCLUDE_PATH=C:/devel/miniupnpc-1.9
+  MINIUPNPC_LIB_PATH=C:/devel/miniupnpc-1.9
+  QRENCODE_INCLUDE_PATH=C:/devel/qrencode-3.4.4
+  QRENCODE_LIB_PATH=C:/devel/qrencode-3.4.4/.libs
+}
+
 # use: qmake "RELEASE=1"
 contains(RELEASE, 1) {
-    # Mac: compile for maximum compatibility (10.5, 32-bit)
-    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk
-    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk
-    macx:QMAKE_LFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk
-    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk
-
+    # Mac
+    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.8 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk -stdlib=libc++
+    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.8 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk -stdlib=libc++
+    macx:QMAKE_LFLAGS += -mmacosx-version-min=10.8 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk -stdlib=libc++
+    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.8 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk -stdlib=libc++
 
     !windows:!macx {
         # Linux: static link
         # LIBS += -Wl,-Bstatic
     }
 }
+
 
 !win32 {
 # for extra security against potential buffer overflows: enable GCCs Stack Smashing Protection
@@ -78,7 +76,7 @@ win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 # on Windows: enable GCC large address aware linker flag
 win32:QMAKE_LFLAGS *= -Wl,--large-address-aware -static
 # i686-w64-mingw32
-win32:QMAKE_LFLAGS *= -static-libgcc -static-libstdc++
+win32:QMAKE_LFLAGS *= -static -static-libgcc -static-libstdc++
 
 # use: qmake "USE_QRCODE=1"
 # libqrencode (http://fukuchi.org/works/qrencode/index.en.html) must be installed for support
@@ -118,7 +116,7 @@ SOURCES += src/txdb-leveldb.cpp
         QMAKE_RANLIB = $$replace(QMAKE_STRIP, strip, ranlib)
     }
     LIBS += -lshlwapi
-    #genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX TARGET_OS=OS_WINDOWS_CROSSCOMPILE $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libleveldb.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libmemenv.a
+    genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX TARGET_OS=OS_WINDOWS_CROSSCOMPILE $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libleveldb.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libmemenv.a
 }
 genleveldb.target = $$PWD/src/leveldb/libleveldb.a
 genleveldb.depends = FORCE
@@ -515,7 +513,7 @@ OTHER_FILES += \
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
     macx:BOOST_LIB_SUFFIX = -mt
-    windows:BOOST_LIB_SUFFIX=-mgw49-mt-s-1_57
+    windows:BOOST_LIB_SUFFIX=-mgw73-mt-s-1_55
 }
 
 isEmpty(BOOST_THREAD_LIB_SUFFIX) {
@@ -525,7 +523,7 @@ isEmpty(BOOST_THREAD_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_LIB_PATH) {
-    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/lib
+    macx:BDB_LIB_PATH = /opt/local/lib/db48
     windows:BDB_LIB_PATH=C:/dev/coindeps32/bdb-4.8/lib
 }
 
@@ -534,17 +532,17 @@ isEmpty(BDB_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_INCLUDE_PATH) {
-    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/include
+    macx:BDB_INCLUDE_PATH = /opt/local/include/db48
     windows:BDB_INCLUDE_PATH=C:/dev/coindeps32/bdb-4.8/include
 }
 
 isEmpty(BOOST_LIB_PATH) {
-    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.59.0/lib
+    macx:BOOST_LIB_PATH = /opt/local/lib
     windows:BOOST_LIB_PATH=C:/dev/coindeps32/boost_1_57_0/lib
 }
 
 isEmpty(BOOST_INCLUDE_PATH) {
-    macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost/1.59.0/include
+    macx:BOOST_INCLUDE_PATH = /opt/local/include
     windows:BOOST_INCLUDE_PATH=C:/dev/coindeps32/boost_1_57_0/include
 }
 
@@ -561,17 +559,17 @@ isEmpty(MINIUPNPC_LIB_SUFFIX) {
 }
 
 isEmpty(MINIUPNPC_INCLUDE_PATH) {
-    macx:MINIUPNPC_INCLUDE_PATH=/usr/local/Cellar/miniupnpc/1.9.20151008/include
+    macx:BOOST_INCLUDE_PATH = /opt/local/include
     windows:MINIUPNPC_INCLUDE_PATH=C:/dev/coindeps32/miniupnpc-1.9
 }
 
 isEmpty(MINIUPNPC_LIB_PATH) {
-    macx:MINIUPNPC_LIB_PATH=/usr/local/Cellar/miniupnpc/1.9.20151008/lib
+    macx:MINIUPNPC_LIB_PATH=/opt/local/lib
     windows:MINIUPNPC_LIB_PATH=C:/dev/coindeps32/miniupnpc-1.9
 }
 
 isEmpty(OPENSSL_INCLUDE_PATH) {
-    macx:OPENSSL_INCLUDE_PATH = /usr/local/openssl-1.0.1p/include
+    macx:OPENSSL_LIB_PATH = /opt/local/lib
     windows:OPENSSL_INCLUDE_PATH=C:/dev/coindeps32/openssl-1.0.1p/include
 }
 
@@ -616,11 +614,10 @@ macx:OBJECTIVE_SOURCES += src/qt/macdockiconhandler.mm src/qt/macnotificationhan
 macx:LIBS += -framework Foundation -framework ApplicationServices -framework AppKit -framework CoreServices
 macx:DEFINES += MAC_OSX MSG_NOSIGNAL=0
 macx:ICON = src/qt/res/icons/bugo.icns
-macx:TARGET = "Bugo-Qt"
+macx:TARGET = "Bugo"
 macx:QMAKE_CFLAGS_THREAD += -pthread
 macx:QMAKE_LFLAGS_THREAD += -pthread
 macx:QMAKE_CXXFLAGS_THREAD += -pthread
-macx:QMAKE_INFO_PLIST = share/qt/Info.plist
 
 # Set libraries and includes at end, to use platform-defined defaults if not overridden
 INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$QRENCODE_INCLUDE_PATH
